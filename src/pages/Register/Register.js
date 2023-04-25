@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoginInput from '../../components/UI/Login/LoginInput/LoginInput';
 import { FiUser, FiLock } from 'react-icons/fi';
@@ -40,15 +40,15 @@ const inputLabel = css`
     font-weight: 600;
 `;
 
-const forgotPassword = css`
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-bottom: 45px;
-    width: 100%;
-    font-size: 12px;
-    font-weight: 600;
-`;
+// const forgotPassword = css`
+//     display: flex;
+//     justify-content: flex-end;
+//     align-items: center;
+//     margin-bottom: 45px;
+//     width: 100%;
+//     font-size: 12px;
+//     font-weight: 600;
+// `;
 
 const loginButton = css`
     margin: 10px 0px;
