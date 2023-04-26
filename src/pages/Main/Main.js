@@ -111,7 +111,7 @@ const Main = () => {
             setBooks([...books, ...response.data.bookList]);
             setSearchParam({...searchParam, page: searchParam.page + 1});
         },
-        enabled: reFresh && searchParam.page < lastPage + 1
+        enabled: reFresh && (searchParam.page < lastPage + 1 || lastPage === 0)
     } );
 
     const categories = useQuery(["categories"],async() => {
@@ -152,10 +152,15 @@ const Main = () => {
 
     const searchInputHandle = (e) => {
         setSearchParam({...searchParam, page:1, searchValue: e.target.value}); 
-        setBooks([]); //체크 된 상태만 호출
-        setRefresh(true);
     };
 
+    const searchSubmitHandle = (e) => {
+        if(e.keyCode === 13){
+            setSearchParam({...searchParam, page:1}); 
+            setBooks([]); //체크 된 상태만 호출
+            setRefresh(true);
+        }
+    }
 
     return (
         <div css={mainContainer}>
@@ -175,7 +180,7 @@ const Main = () => {
                             :""}
                         </div> 
                     </button>
-                    <input css={searchInput} type='search' onChange={searchInputHandle}/>
+                    <input css={searchInput} type="search" onKeyUp={searchSubmitHandle}  onChange={searchInputHandle}/>
                 </div>
             </header>
             <main css={main}>
