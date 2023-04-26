@@ -10,29 +10,47 @@ const mainContainer = css`
 `;
 
 const BookDetail = () => {
-    const { bookId } = useParams();
-    //async는 콜백함수 앞에
-    const getBook = useQuery(["getBook"], async() =>{ //
-        const option = { //
-            headers: {
-                Authorization: localStorage.getItem("accessToken")
+
+    const {bookId} = useParams("bookId");
+    const getBook = useQuery(["getBook"], async() => {
+
+        const option = {
+            headers:{
+                Authorization:localStorage.getItem("accessToken")
             }
-        }// await는 프로미스에만 사용가능
-        const response = await axios.get(`http://localhost:8080/book/${bookId}`, option)  
-        return response
+        }
+     
+       const response =  await axios.get(`http://localhost:8080/book/${bookId}`,option)
+
+       return response;
+    }); 
+
+    const getLikeCount = useQuery(["getLikeCount"], async () => {
+        
+        const option = {
+            headers:{
+                Authorization:localStorage.getItem("accessToken")
+            }
+        }
+        const response =  await axios.get(`http://localhost:8080/book/${bookId}/like`,option)
+
+        return response;
     });
 
+    
     if(getBook.isLoading){
-        return <div>불러오는 중...</div>
-    }
-
-    if(!getBook.isLoading)
+        return <div>로딩중...</div>
+    } 
     return (
         <div css={mainContainer}>
             <Sidebar/> 
             <header>
                 <h1>{getBook.data.data.bookName}</h1>
-                <p>분류: {getBook.data.data.categoryName}/ 저자명: {getBook.data.data.authorName}/ 출판사: {getBook.data.data.publisherName}/ 추천: </p>
+                <p>
+                    분류:{getBook.data.data.categoryName} / 
+                    저자명:{getBook.data.data.authorName} / 
+                    출판사:{getBook.data.data.publisherName} / 
+                    추천: {getLikeCount.isLoading ? "조회중..." : getLikeCount.data.data}</p>
             </header>
             <main>
                 <div>
@@ -42,7 +60,7 @@ const BookDetail = () => {
                     
                 </div>
                 <div>
-
+                    <button></button>
                 </div>
             </main>
         </div>
