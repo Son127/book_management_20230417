@@ -2,16 +2,20 @@
 import { css } from '@emotion/react';
 import React from 'react';
 import {AiOutlineLike} from 'react-icons/ai'
+import { useNavigate } from 'react-router-dom';
 
 const cardContainer = css`
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     align-items: center;
     margin: 20px;
     border: 1px solid #dbdbdb;
     border-radius: 7px;
     box-shadow: 0px 0px 5px #dbdbdb;
     width: 300px;
+    /* max :  안쪽여백에서 같이 늘어날때 최대로 늘어날수 있는 높이 */
+    max-height: 450px;
     cursor: pointer;
     &:hover{
         box-shadow: 0px 0px 10px #dbdbdb;
@@ -94,8 +98,13 @@ const likeIcon = css`
 `;
 
 const BookCard = ({ book }) => {
+    const navigate = useNavigate();
+    const clickHandle = () => { // bookcard 클릭시 화면 이동
+        navigate("/book/" + book.bookId);
+    }
+
     return (
-        <div css={cardContainer}>
+        <div css={cardContainer} onClick={clickHandle}>
             <header css={header}>
                 <h1 css={titleText}>{book.bookName}</h1>
             </header>
