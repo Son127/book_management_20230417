@@ -6,6 +6,7 @@ import BookCard from '../../components/UI/BookCard/BookCard';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import {BsMenuDown} from 'react-icons/bs';
+import QueryString from 'qs';
 
 const mainContainer = css`
     padding: 10px;
@@ -67,7 +68,7 @@ const main = css`
 
 const Main = () => {
     
-    const [ searchParam, setSearchParam ] = useState({page: 1, searchValue: "", categoryIds: 0 });
+    const [ searchParam, setSearchParam ] = useState({page: 1, searchValue: "", categoryIds: [] });
     const [ reFresh, setRefresh ] = useState(false);
     const [ categoryRefresh, setCatagoryRefersh ] = useState(true);
     const [ isOpne, setIsOpen ] = useState(false);
@@ -93,7 +94,8 @@ const Main = () => {
         params: searchParam,
         headers:{
             Authorization: localStorage.getItem("accessToken")
-        }
+        },
+        paramsSerializer:params => QueryString.stringify(params, {arrayFormat: "repeat"})
     }
     const searchBooks = useQuery(["searchBooks"],async () => {
         const response = await axios.get("http://localhost:8080/books", option);
@@ -141,10 +143,17 @@ const Main = () => {
     }
     const categoryCheckHandle = (e) => {
         if(e.target.checked){
-            searchParam({...searchParam, categoryIds:[...searchParam.categoryIds, e.target.value]}); 
+            setSearchParam({...searchParam, page:1, categoryIds: [...searchParam.categoryIds, e.target.value]});
         }else{
-            searchParam({...searchParam, categoryIds:[...searchParam.categoryIds.filter(id => id !== e.target.value)]});
-        }
+            setSearchParam({...searchParam, page:1, categoryIds: [...searchParam.categoryIds.filter(id => id !== e.target.value)]});        }
+        setBooks([]); //체크 된 상태만 호출
+        setRefresh(true);
+    };
+
+    const searchInputHandle = (e) => {
+        setSearchParam({...searchParam, page:1, searchValue: e.target.value}); 
+        setBooks([]); //체크 된 상태만 호출
+        setRefresh(true);
     };
 
 
@@ -166,7 +175,7 @@ const Main = () => {
                             :""}
                         </div> 
                     </button>
-                    <input css={searchInput} type='search' />
+                    <input css={searchInput} type='search' onChange={searchInputHandle}/>
                 </div>
             </header>
             <main css={main}>
