@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 import React from 'react';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import { useParams } from 'react-router-dom';
-import { useQuery } from 'react-query';import axios from 'axios';
+import { useQuery, useQueryClient } from 'react-query';import axios from 'axios';
 
 const mainContainer = css`
     padding: 10px;
@@ -11,7 +11,11 @@ const mainContainer = css`
 
 const BookDetail = () => {
 
-    const {bookId} = useParams("bookId");
+    const {bookId} = useParams();
+    const queryClient = useQueryClient();
+    // console.log(queryClient.getQueryData("principal").data.userId);
+
+
     const getBook = useQuery(["getBook"], async() => {
 
         const option = {
@@ -33,6 +37,21 @@ const BookDetail = () => {
             }
         }
         const response =  await axios.get(`http://localhost:8080/book/${bookId}/like`,option)
+
+        return response;
+    });
+
+    const getLikeStatus = useQuery(["getLikeStatus"], async () => {
+        
+        const option = {
+            params: {
+                userId: queryClient.getQueryData("principal").data.userId
+            },
+            headers:{
+                Authorization:localStorage.getItem("accessToken")
+            }
+        }
+        const response =  await axios.get(`http://localhost:8080/book/${bookId}/like/status`,option)
 
         return response;
     });
@@ -60,7 +79,10 @@ const BookDetail = () => {
                     
                 </div>
                 <div>
-                    <button></button>
+                    {getLikeStatus.isLoading ? "" 
+                        : getLikeStatus.data.data === 0 
+                            ? (<button>추천하기</button>)
+                            :(<button>추천취소</button>)}
                 </div>
             </main>
         </div>

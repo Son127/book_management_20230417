@@ -151,7 +151,7 @@ const Main = () => {
     };
 
     const searchInputHandle = (e) => {
-        setSearchParam({...searchParam, page:1, searchValue: e.target.value}); 
+        setSearchParam({...searchParam, searchValue: e.target.value}); 
     };
 
     const searchSubmitHandle = (e) => {
