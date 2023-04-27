@@ -3,7 +3,8 @@ import { css } from '@emotion/react';
 import React from 'react';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import { useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from 'react-query';import axios from 'axios';
+import { useMutation, useQuery, useQueryClient } from 'react-query';import axios from 'axios';
+import RentalList from '../../components/UI/BookDetail/RentalList/RentalList';
 
 const mainContainer = css`
     padding: 10px;
@@ -56,6 +57,41 @@ const BookDetail = () => {
         return response;
     });
 
+    //useMutation * 리액트 쿼리에서 get을 제외한 모든 요청을 처리할때 사용
+    const setLike = useMutation(async() => {
+        const option = {
+            headers:{
+                "Content-Type": "application/json",
+                Authorization:localStorage.getItem("accessToken")
+            }
+        }
+        return await axios.post(`http://localhost:8080/book/${bookId}/like`,JSON.stringify({
+            userId: queryClient.getQueryData("principal").data.userId
+        }), option);
+    },{
+        onSuccess: () => { //invalidateQueries 캐싱을 삭제, 쿼리가 비워지면 자동으로 쿼리가 추가를
+            queryClient.invalidateQueries("getLikeCount");
+            queryClient.invalidateQueries("getLikeStatus");
+        }
+    }); 
+    // Json으로 보내는게 아니라 데이터로 보냄(get요청은 params, delete 요청은 data)
+    const disLike = useMutation(async() => {
+        const option = {
+            params:{
+                userId: queryClient.getQueryData("principal").data.userId
+            },
+            headers:{
+                Authorization:localStorage.getItem("accessToken")
+            }
+        }
+        return await axios.delete(`http://localhost:8080/book/${bookId}/like`, option);
+    },{
+        onSuccess: () => {
+            queryClient.invalidateQueries("getLikeCount");
+            queryClient.invalidateQueries("getLikeStatus");
+        }
+    }); 
+
     
     if(getBook.isLoading){
         return <div>로딩중...</div>
@@ -76,13 +112,13 @@ const BookDetail = () => {
                     <img src={getBook.data.data.coverImgUrl} alt={getBook.data.data.categoryName} />
                 </div>
                 <div>
-                    
+                    <RentalList bookId={bookId}/>
                 </div>
                 <div>
                     {getLikeStatus.isLoading ? "" 
                         : getLikeStatus.data.data === 0 
-                            ? (<button>추천하기</button>)
-                            :(<button>추천취소</button>)}
+                            ? (<button onClick={() => {setLike.mutate()}}>추천하기</button>)
+                            : (<button onClick={() => {disLike.mutate()}}>추천취소</button>)}
                 </div>
             </main>
         </div>
