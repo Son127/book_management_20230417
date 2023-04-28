@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import ListButton from './ListButton';
 import { GrClose } from 'react-icons/gr';
 import {BiHome, BiLike, BiListUl, BiLogOut } from "react-icons/bi"
-import { useQuery } from 'react-query';
-import axios from 'axios';
+import { useQuery, useQueryClient } from 'react-query';
 
 const sidebar = (isOpen) => css`
     position: absolute;
@@ -91,16 +90,7 @@ const footer= css`
 
 const Sidebar =  () => {
     const [isOpen, setIsOpen] = useState(false);
-    const { data, isLoading} = useQuery(["principal"], async () => {
-        const accessToken = localStorage.getItem("accessToken");
-        const response = await axios.get("http://localhost:8080/auth/principal",
-        {params: {accessToken}},
-        {
-            enable: accessToken
-        });
-        return response;
-    });
-    
+    const queryClient = useQueryClient();
     
     const sidebarOpenClickHandle = () => {
         if(!isOpen){ 
@@ -116,23 +106,26 @@ const Sidebar =  () => {
     const logoutClickhandle = () => {
         if(window.confirm("로그아웃 하시겠습니까")){
             localStorage.removeItem("accessToken");
-        }
-    }
-   
-    if(isLoading){
-        return<> Loding... </>
+            queryClient.invalidateQueries("principal");
     }
 
-    if(!isLoading)
+    //useQuery isLoding이랑 같은 역할
+    if(queryClient.getQueryState("principal").status === "loding"){
+        return <div>로딩중</div>
+    }
+    
+    const principalData = queryClient.getQueryData("principal").data;
+    const roles = principalData.authorities.split(",");
+
     return (
         <div  css={sidebar(isOpen)} onClick={sidebarOpenClickHandle}>
             <header css={header}>
                 <div css={userIcon}>
-                    {data.data.name.substr(0, 1)} 
+                    {principalData.name.substr(0, 1)} 
                 </div>
                 <div css={userInfo}>
-                    <h1 css={username}>{data.data.name}</h1>
-                    <p css={userEmail}>{data.data.email}</p>
+                    <h1 css={username}>{queryClient.getQueryData("principal").data.name}</h1>
+                    <p css={userEmail}>{queryClient.getQueryData("principal").data.email}</p>
                 </div>
                 <div css={closeButton} onClick={sidebarCloseClickHandle}><GrClose /></div>
             </header>
@@ -140,12 +133,14 @@ const Sidebar =  () => {
                 <ListButton title="Dashboard"><BiHome/></ListButton>
                 <ListButton title="Likes"><BiLike /></ListButton>
                 <ListButton title="Rental"><BiListUl/></ListButton>
+                {roles.includes("ROLE_ADMIN") ? (<ListButton title="RegisterBookList"><BiListUl/></ListButton>) : ""}
             </main>
             <footer css={footer} >
                 <ListButton title="Logout" onClick={logoutClickhandle}><BiLogOut /></ListButton>
             </footer>
         </div>
     );
+};
 };
 export default Sidebar;
 //substr(시작 인덱스, 자를 갯수)

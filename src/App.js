@@ -7,6 +7,7 @@ import Main from './pages/Main/Main';
 // import AuthRoute from './components/Routes/AuthRoute/AuthRoute';
 import AuthRouteReactQuery from './components/Routes/AuthRoute/AuthRouteReactQuery';
 import BookDetail from './pages/BookDetail/BookDetail';
+import BookRegsiter from './pages/Admin/BookRegister/BookRegsiter';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
         <Route path="/register" element={ <AuthRouteReactQuery path="/register" element={<Register />} /> } />
         <Route path="/" element={ <AuthRouteReactQuery path="/" element={<Main />} /> } />
         <Route path="/book/:bookId" element={ <AuthRouteReactQuery path="/book" element={<BookDetail />} /> } />
-        <Route path="/admin/search" element={ <AuthRouteReactQuery path="/" element={<Main />} /> } />
+        <Route path="/admin/book/register" element={ <AuthRouteReactQuery path="/admin/book/register" element={<BookRegsiter />} /> } />
 
       </Routes>
     </>
